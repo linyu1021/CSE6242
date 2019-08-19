@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<title>Bar Chart</title>
+<head>
+	<script src="../lib/d3.v3.min.js"></script>
+</head>
+<style type="text/css">
+
+	
+.axis path,
+.axis line {
+fill: none;
+stroke: black;
+stroke-width:0.5;
+shape-rendering: crispEdges;
+}
+
+path {
+stroke: skyblue;
+stroke-width:2.2;
+fill:none;
+}
+
+
+</style>
+<body>
+	<script type="text/javascript">
+
+var width = 900;
+var barWidth = 200;
+var rectHeight = 40;
+
+
+// load data
+var data = [{club:"Manchester United", year_2013:3165, year_2014:2810, year_2015:3100, year_2016:3317, year_2017:4583},
+		        {club:'Chelsea', year_2013:901, year_2014:868, year_2015:1370, year_2016:1661, year_2017:1845},
+		        {club:'Manchester City',year_2013:689, year_2014:863, year_2015:1380, year_2016:1921, year_2017:2083},
+		        {club:'Liverpool', year_2013:651, year_2014:704, year_2015:982, year_2016:1548, year_2017:1492},
+		        {club:'Arsenal', year_2013:1326, year_2014:1331, year_2015:1310, year_2016:2017, year_2017:1932}];
+
+
+// create bar chart
+var svg = d3.select("body")
+          .append("svg")
+          .attr("width",width)
+          .attr("height",600);
+
+var xScale = d3.scale.linear()
+    .domain([0,17000])
+    .range([0,420]);
+
+// add the bar
+    /*for (m = 0; m < 5; m++) {
+    svg.append("text")
+      .attr("font-size","12px")
+      .attr("fill","grey")
+      .attr("x", 20)
+      .attr("y", function(i) {return (m+2)*rectHeight+10;})
+      .attr("dy", "1em")
+      .text(function(i) {return data[m].club;})
+      }*/
+
+    svg.selectAll("rect")
+        .data(data)
+      .enter().append("rect")
+        .attr("x",120)
+        .attr("y",function(d, i) {return (i + 2) * rectHeight;})
+        .attr("width",function(d, i) {return xScale(d.year_2013 + d.year_2014 + d.year_2015 + d.year_2016 + d.year_2017);})
+        .attr("height",30)
+        .attr("fill","grey")
+        .on("mouseover",function(d, i) {
+           d3.select(this).attr("fill","skyblue");
+           d3.selectAll("g").remove();
+
+    var donate = [{year:2013, value:d.year_2013},
+    			        {year:2014, value:d.year_2014},
+    			        {year:2015, value:d.year_2015},
+    			        {year:2016, value:d.year_2016},
+    			        {year:2017, value:d.year_2017}];
+
+    // x scale of line chart
+    var xScale1 = d3.scale.linear()
+				.domain([2013,2017])
+				.range([0,200]);
+    // y scale of line chart
+	  var yScale1 = d3.scale.linear()
+				.domain([d3.min(donate, function(d){return d.value - 100;}), d3.max(donate, function(d){return d.value + 100;})])
+				.range([200,0]);
+
+    // x axis of line chart
+	  var xAxis1 = d3.svg.axis()
+    	 .scale(xScale1)
+    	 .orient("bottom")
+    	 .ticks(5);
+
+    svg.append("g")
+         .attr("class","axis")
+         .attr("transform", "translate("+ 600 +","+ 250 +")")
+         .call(xAxis1)
+         .append("text")
+         .attr("class","label")
+         .attr("x", 200)
+         .attr("y", -10)
+         .style("text-anchor","end")
+         .text("year");
+    
+    // y axis of line chart
+	  var yAxis1 = d3.svg.axis()
+			 .scale(yScale1)
+			 .orient("left")
+       .ticks(6);
+
+    svg.append("g")
+       .attr("class","axis")
+       .attr("transform", "translate("+ 600 +","+ 50 +")")
+       .call(yAxis1)
+       .append("text")
+       .attr("class","label")
+       .attr("transform","rotate(-90)")
+       .attr("y", 10)
+       .attr("dy",".91em")
+       .style("text-anchor","end")
+       .text("value");        
+
+    // create the line
+    var value=d3.svg.line()
+			 .x(function(d) {return xScale1(d.year);})
+			 .y(function(d) {return yScale1(d.value);});
+
+    //create line chart path
+    svg.append("path")
+       .attr("class","line")
+       .attr("transform", "translate("+ 600 +","+ 50 +")")
+       .attr("d", value(donate));
+    })
+
+    // mouseout change
+    .on("mouseout", function(d,i) {d3.select(this).transition().duration(100)
+         .attr("fill","grey");
+         d3.selectAll("g").remove()
+         d3.selectAll("path").remove();
+    });
+
+svg.selectAll("text")
+   .data(data)
+   .enter()
+   .append("text")
+   .attr("font-size","14px")
+   .attr("fill","white")
+   .attr("x",130)
+   .attr("y",function(d,i){return (i+1.5)*rectHeight;})
+   .attr("dy","3em")
+   .text(function(d){return "$ " + (d.year_2013+d.year_2014+d.year_2015+d.year_2016+d.year_2017);});
+
+for (m = 0; m < 5; m++) {
+    svg.append("text")
+      .attr("font-size","12px")
+      .attr("fill","grey")
+      .attr("x", 20)
+      .attr("y", function(i) {return (m+2)*rectHeight+10;})
+      .attr("dy", "1em")
+      .text(function(i) {return data[m].club;})
+      }
+	
+</script>
+
+</body>
